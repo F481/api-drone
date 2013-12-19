@@ -1,4 +1,4 @@
 api-drone
 =========
 
-A full automated Arduino / Raspberry Pi Drone
+API-Drone stand for **A**rduino / Raspberry **Pi** Drone.  
