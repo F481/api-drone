@@ -1,11 +1,10 @@
 #include <Servo.h>
   
+#define MOTOR1_PIN  9;
+#define MOTOR2_PIN 10;
+
 // we use the servo library to control the motors
 Servo motor1, motor2, motor3, motor4;
-
-int motor1_pin = 9;
-int motor2_pin = 10;
-
 
 // mpx permax 400 brushed motors needs at least 80 to start (7,4V Lipo)
 int min_speed = 80;
@@ -16,10 +15,10 @@ void setup()
   Serial.print("Ready\n");
 
   // calibrate motors during setup, otherwise they wouldn't start
-  motor1.attach(motor1_pin);
+  motor1.attach(MOTOR1_PIN);
   motor1.write(0);
   delay(500);
-  motor2.attach(motor2_pin);
+  motor2.attach(MOTOR2_PIN);
   motor2.write(0);
   delay(500);
   
@@ -46,4 +45,5 @@ void stopMotors() {
   motor1.write(0);
   motor2.write(0);
 }
+
 
