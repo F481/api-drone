@@ -1,28 +1,39 @@
 #include <Servo.h>
-  
-#define MOTOR1_PIN  9
-#define MOTOR2_PIN 10
+
+bool debugMode = true;
 
 // we use the servo library to control the motors
 Servo motor1, motor2, motor3, motor4;
+Servo motor[] = { motor1, motor2, motor3, motor4 };
 
-// mpx permax 400 brushed motors needs at least 80 to start (7,4V Lipo)
+// maps motors to its related pins
+int motor_pin[] = { 9, 10, 11, 12 };
+
+// maybe we have to change min_speed depending on used motors, ESC and battery
 int min_speed = 80;
+int max_speed = 180;
 
+int numberOfMotors = sizeof(motor) / sizeof(motor[0]);
 String input = "";
   
 void setup()
 {
+  // hack to make printf work..
+  // http://reza.net/wordpress/?p=269
+  fdevopen(&my_putc, 0);
+  
   Serial.begin(9600);
-  Serial.print("Initializing... ");
-
+  Serial.println("Initializing... ");
+  
   // calibrate motors during setup, otherwise they wouldn't start
-  motor1.attach(MOTOR1_PIN);
-  motor1.write(0);
-  delay(500);
-  motor2.attach(MOTOR2_PIN);
-  motor2.write(0);
-  delay(500);
+  for (int i = 0; i < numberOfMotors; i++) {
+    motor[i].attach(motor_pin[i]);
+    motor[i].write(0);
+    delay(500);
+    if (debugMode) {
+      printf("Motor%d successfully calibrated on pin %d \n", i+1, motor_pin[i]);
+    }
+  }
   
   // wait a second to synchronize the motors
   delay(1000);
@@ -59,6 +70,9 @@ String handleCommand(String input) {
     result = startMotors();
   } else if (command == "stop") {
     result = stopMotors();
+  } else if (command == "speed") {
+    //result = setMotorSpeed(1, 0);
+    //result = setMotorSpeed(2, 30);
   } else {
     result = "unknown command: " + command;
   }
@@ -97,8 +111,12 @@ int getArgumentFromInput(String input) {
 
 // before we take off let's start the motors with minimum speed
 String startMotors() {
-  motor1.write(min_speed); 
-  motor2.write(min_speed);
+  for (int i = 0; i < numberOfMotors; i++) {
+    motor[i].write(min_speed);
+    if (debugMode) {
+      printf("Starting motor%d... \n", i+1);
+    }
+  }
   
   return "ok";
 }
@@ -106,10 +124,37 @@ String startMotors() {
 
 // power off the motors
 String stopMotors() {
-  motor1.write(0);
-  motor2.write(0);
+  for (int i = 0; i < numberOfMotors; i++) {
+    motor[i].write(0);
+    if (debugMode) {
+      printf("Stopping motor%d... \n", i+1);
+    }
+  }
+  
+  return "ok";
+}
+
+// set speed in percent of motor "motorNumber"
+String setMotorSpeed(int motorNumber, int speedInPercent) {
+  // map the given percentage speed to our speed range
+  // for security reasons 0 percent is mapped to min_speed, if you really want to power off the motors call stopMotors()
+  int motorSpeed = map(
+    speedInPercent,
+    0, 100,
+    min_speed, max_speed
+  );
+  
+  // motor array start with 0
+  motor[motorNumber - 1].write(motorSpeed);
+  if (debugMode) {
+    printf("Set speed of motor%d to %d \n", motorNumber, motorSpeed);
+  }
   
   return "ok";
 }
 
 
+// hack to make printf work..
+int my_putc(char c, FILE *t) {
+  Serial.write(c);
+}
