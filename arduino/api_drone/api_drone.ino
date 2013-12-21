@@ -1,4 +1,11 @@
 #include <Servo.h>
+#include <NewPing.h>
+
+#define TRIGGER_PIN 2
+#define ECHO_PIN 13
+#define MAX_DISTANCE 200
+
+NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE);
 
 bool debugMode = true;
 
@@ -41,7 +48,7 @@ void setup()
 }
 
 void loop()
-{
+{  
   char character;
   
   // read commands from serial
@@ -56,6 +63,8 @@ void loop()
     Serial.println(result);
     input = "";
   }
+  
+  //Serial.println(getDistanceInCm());
 }
 
 // format: <command>[:argument] (where ":argument" is optional)
@@ -151,6 +160,11 @@ String setMotorSpeed(int motorNumber, int speedInPercent) {
   }
   
   return "ok";
+}
+
+
+int getDistanceInCm() {
+  return sonar.ping_cm(); 
 }
 
 
