@@ -13,14 +13,16 @@ bool debugMode = true;
 Servo motor1, motor2, motor3, motor4;
 Servo motor[] = { motor1, motor2, motor3, motor4 };
 
+int const numberOfMotors = sizeof(motor) / sizeof(motor[0]);
+
 // maps motors to its related pins
-int motor_pin[] = { 9, 10, 11, 12 };
+int motor_pin[numberOfMotors] = { 9, 10, 11, 12 };
+int motor_speed[numberOfMotors];
 
 // maybe we have to change min_speed depending on used motors, ESC and battery
 int min_speed = 80;
 int max_speed = 180;
 
-int numberOfMotors = sizeof(motor) / sizeof(motor[0]);
 String input = "";
   
 void setup()
@@ -31,6 +33,8 @@ void setup()
   
   Serial.begin(9600);
   Serial.println("Initializing... ");
+  
+  initMotorSpeed(numberOfMotors);
   
   // calibrate motors during setup, otherwise they wouldn't start
   for (int i = 0; i < numberOfMotors; i++) {
@@ -80,8 +84,8 @@ String handleCommand(String input) {
   } else if (command == "stop") {
     result = stopMotors();
   } else if (command == "speed") {
-    //result = setMotorSpeed(1, 0);
-    //result = setMotorSpeed(2, 30);
+    result = setMotorSpeed(1, 0);
+    result = setMotorSpeed(2, 30);
   } else {
     result = "unknown command: " + command;
   }
@@ -147,16 +151,16 @@ String stopMotors() {
 String setMotorSpeed(int motorNumber, int speedInPercent) {
   // map the given percentage speed to our speed range
   // for security reasons 0 percent is mapped to min_speed, if you really want to power off the motors call stopMotors()
-  int motorSpeed = map(
+  motor_speed[motorNumber] = map(
     speedInPercent,
     0, 100,
     min_speed, max_speed
   );
   
   // motor array start with 0
-  motor[motorNumber - 1].write(motorSpeed);
+  motor[motorNumber - 1].write(motor_speed[motorNumber]);
   if (debugMode) {
-    printf("Set speed of motor%d to %d \n", motorNumber, motorSpeed);
+    printf("Set speed of motor%d to %d \n", motorNumber, motor_speed[motorNumber]);
   }
   
   return "ok";
@@ -165,6 +169,14 @@ String setMotorSpeed(int motorNumber, int speedInPercent) {
 
 int getDistanceInCm() {
   return sonar.ping_cm(); 
+}
+
+
+void initMotorSpeed(int quantity) {
+  for (int i = 0; i < quantity; i++) {
+    motor_speed[i] = 0;
+  }
+  printf("motor_speed[] (size %d) completly initialized with 0 \n", quantity);
 }
 
 
