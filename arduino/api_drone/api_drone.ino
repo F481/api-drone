@@ -17,7 +17,7 @@ int const numberOfMotors = sizeof(motor) / sizeof(motor[0]);
 
 // maps motors to its related pins
 int motor_pin[numberOfMotors] = { 9, 10, 11, 12 };
-int motor_speed[numberOfMotors];
+int motor_speed[numberOfMotors] = { 0, 0, 0, 0 };
 
 // maybe we have to change min_speed depending on used motors, ESC and battery
 int min_speed = 80;
@@ -33,8 +33,6 @@ void setup()
   
   Serial.begin(9600);
   Serial.println("Initializing... ");
-  
-  initMotorSpeed(numberOfMotors);
   
   // calibrate motors during setup, otherwise they wouldn't start
   for (int i = 0; i < numberOfMotors; i++) {
@@ -126,8 +124,11 @@ int getArgumentFromInput(String input) {
 String startMotors() {
   for (int i = 0; i < numberOfMotors; i++) {
     motor[i].write(min_speed);
+    motor_speed[i] = min_speed;
+    
     if (debugMode) {
       printf("Starting motor%d... \n", i+1);
+      printf("Set speed%d to %d \n", i+1, motor_speed[i]);
     }
   }
   
@@ -139,13 +140,17 @@ String startMotors() {
 String stopMotors() {
   for (int i = 0; i < numberOfMotors; i++) {
     motor[i].write(0);
+    motor_speed[i] = 0;
+    
     if (debugMode) {
       printf("Stopping motor%d... \n", i+1);
+      printf("Set speed%d to %d \n", i+1, motor_speed[i]);
     }
   }
   
   return "ok";
 }
+
 
 // set speed in percent of motor "motorNumber"
 String setMotorSpeed(int motorNumber, int speedInPercent) {
@@ -169,14 +174,6 @@ String setMotorSpeed(int motorNumber, int speedInPercent) {
 
 int getDistanceInCm() {
   return sonar.ping_cm(); 
-}
-
-
-void initMotorSpeed(int quantity) {
-  for (int i = 0; i < quantity; i++) {
-    motor_speed[i] = 0;
-  }
-  printf("motor_speed[] (size %d) completly initialized with 0 \n", quantity);
 }
 
 
