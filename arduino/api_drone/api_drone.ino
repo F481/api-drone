@@ -84,6 +84,8 @@ String handleCommand(String input) {
   } else if (command == "speed") {
     result = setMotorSpeed(1, argument);
     result = setMotorSpeed(2, argument);
+  } else if (command == "ping") {
+    Serial.println( getDistanceInCm() );
   } else {
     result = "unknown command: " + command;
   }
@@ -128,7 +130,7 @@ String startMotors() {
     
     if (debugMode) {
       printf("Starting motor%d... \n", i+1);
-      printf("Set speed%d to %d \n", i+1, motor_speed[i]);
+      printf("Set speed of motor%d to %d \n", i+1, motor_speed[i]);
     }
   }
   
@@ -144,7 +146,7 @@ String stopMotors() {
     
     if (debugMode) {
       printf("Stopping motor%d... \n", i+1);
-      printf("Set speed%d to %d \n", i+1, motor_speed[i]);
+      printf("Set speed of motor%d to %d \n", i+1, motor_speed[i]);
     }
   }
   
