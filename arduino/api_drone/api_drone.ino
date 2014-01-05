@@ -82,8 +82,8 @@ String handleCommand(String input) {
   } else if (command == "stop") {
     result = stopMotors();
   } else if (command == "speed") {
-    result = setMotorSpeed(1, 0);
-    result = setMotorSpeed(2, 30);
+    result = setMotorSpeed(1, argument);
+    result = setMotorSpeed(2, argument);
   } else {
     result = "unknown command: " + command;
   }
